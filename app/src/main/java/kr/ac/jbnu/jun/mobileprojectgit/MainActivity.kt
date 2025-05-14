@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-            //실험 주석
+            //실험 주석 안녕하세요
         }
     }
 }
