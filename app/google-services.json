@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "483050893918",
+    "project_id": "sleep2-60bc9",
+    "storage_bucket": "sleep2-60bc9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:483050893918:android:6af3f8f866a6176bda7acf",
+        "android_client_info": {
+          "package_name": "kr.ac.jbnu.jun.mobileprojectgit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4XKzyO4kfcTPkr5196EyUg4NoMPBwrXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
