@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/alarmFragment">
+
+    <fragment
+        android:id="@+id/alarmFragment"
+        android:name="kr.ac.jbnu.jun.mobileprojectgit.ui.AlarmFragment"
+        android:label="알람" />
+
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="kr.ac.jbnu.jun.mobileprojectgit.ui.FriendsFragment"
+        android:label="친구" />
+</navigation>

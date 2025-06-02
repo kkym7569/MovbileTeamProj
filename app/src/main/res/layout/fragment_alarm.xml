@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#0A0F2C"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 1. 상태 점수 -->
+        <TextView
+            android:id="@+id/tv_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="86"
+            android:textColor="#5FB7FF"
+            android:textSize="48sp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="아주 좋아요"
+            android:textColor="#CCCCCC"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- 2. 추천 섹션 -->
+        <TextView
+            android:id="@+id/tv_recommend_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="지금 자면 🌙"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btn_suggested_wake_time"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:text="--:--"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/rounded_button_purple"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- 3. 수동 설정 섹션 -->
+        <TextView
+            android:id="@+id/tv_manual_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="언제 일어나야 할까요?"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btn_set_wake_time"
+            android:layout_width="140dp"
+            android:layout_height="44dp"
+            android:text="--:--"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/rounded_button_gray"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- 4. 추천 수면 시작 시간 표시 영역 -->
+        <TextView
+            android:id="@+id/tv_sleep_start_recommend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#DDDDDD"
+            android:textSize="14sp"
+            android:layout_marginBottom="24dp"/>
+
+    </LinearLayout>
+</ScrollView>
