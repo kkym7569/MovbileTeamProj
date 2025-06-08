@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- 1. 상태 점수 -->
+        <!-- 기존 내용 유지 -->
         <TextView
             android:id="@+id/tv_score"
             android:layout_width="wrap_content"
@@ -30,7 +30,6 @@
             android:textSize="16sp"
             android:layout_marginBottom="24dp"/>
 
-        <!-- 2. 추천 섹션 -->
         <TextView
             android:id="@+id/tv_recommend_label"
             android:layout_width="wrap_content"
@@ -50,7 +49,6 @@
             android:background="@drawable/rounded_button_purple"
             android:layout_marginBottom="32dp"/>
 
-        <!-- 3. 수동 설정 섹션 -->
         <TextView
             android:id="@+id/tv_manual_label"
             android:layout_width="wrap_content"
@@ -70,7 +68,6 @@
             android:background="@drawable/rounded_button_gray"
             android:layout_marginBottom="16dp"/>
 
-        <!-- 4. 추천 수면 시작 시간 표시 영역 -->
         <TextView
             android:id="@+id/tv_sleep_start_recommend"
             android:layout_width="wrap_content"
@@ -80,5 +77,40 @@
             android:textSize="14sp"
             android:layout_marginBottom="24dp"/>
 
+        <!-- 🔽 추가된 버튼 5개 -->
+        <Button
+            android:id="@+id/btn_init"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="init"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_begin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="begin"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="end"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_report"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="report"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnShareList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="수면 기록 공유 보기"
+            android:layout_marginBottom="24dp" />
     </LinearLayout>
 </ScrollView>

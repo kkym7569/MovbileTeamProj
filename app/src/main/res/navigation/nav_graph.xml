@@ -13,4 +13,14 @@
         android:id="@+id/friendsFragment"
         android:name="kr.ac.jbnu.jun.mobileprojectgit.ui.FriendsFragment"
         android:label="친구" />
+
+    <fragment
+        android:id="@+id/statsFragment"
+        android:name="kr.ac.jbnu.jun.mobileprojectgit.ui.StatsFragment"
+        android:label="통계" />
+
+    <fragment
+        android:id="@+id/qualityFragment"
+        android:name="kr.ac.jbnu.jun.mobileprojectgit.ui.QualityFragment"
+        android:label="분석" />
 </navigation>
