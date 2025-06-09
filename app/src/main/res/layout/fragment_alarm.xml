@@ -100,17 +100,10 @@
             android:layout_marginBottom="8dp" />
 
         <Button
-            android:id="@+id/btn_report"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="report"
-            android:layout_marginBottom="8dp" />
-
-        <Button
             android:id="@+id/btnShareList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="수면 기록 공유 보기"
+            android:text="수면 기록 공유 보기/ 없앨 버튼임"
             android:layout_marginBottom="24dp" />
     </LinearLayout>
 </ScrollView>

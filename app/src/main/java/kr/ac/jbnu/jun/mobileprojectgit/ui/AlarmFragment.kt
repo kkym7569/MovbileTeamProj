@@ -60,7 +60,6 @@ class AlarmFragment : Fragment() {
         btnInit = view.findViewById(R.id.btn_init)
         btnBegin = view.findViewById(R.id.btn_begin)
         btnEnd = view.findViewById(R.id.btn_end)
-        btnReport = view.findViewById(R.id.btn_report)
         btnShareList = view.findViewById(R.id.btnShareList)
 
         btnSuggested.text = "--:--"
@@ -81,6 +80,12 @@ class AlarmFragment : Fragment() {
                     val selected = recTimes[idx]
                     btnSuggested.text = selected.format(timeFmt)
                     scheduleAlarm(selected.hour, selected.minute)
+
+                    //기존 비긴 함수 기능 넣음
+                    beginFun()
+                }
+                .setOnCancelListener {
+                    showToast("추천 시간 선택이 취소되었습니다")
                 }.show()
         }
 
@@ -94,6 +99,9 @@ class AlarmFragment : Fragment() {
                 val recStarts = SleepCycleUtil.getRecommendedSleepTimes(h, m)
                 val recStrings = recStarts.joinToString("  |  ") { it.format(timeFmt) }
                 tvSleepStartRecommend.text = "추천 수면 시작: $recStrings"
+
+                //여기에 기존 비긴 기능 넣음
+                beginFun()
             },
                 c.get(Calendar.HOUR_OF_DAY),
                 c.get(Calendar.MINUTE),
@@ -120,6 +128,8 @@ class AlarmFragment : Fragment() {
                 })
         }
 
+
+        /*비긴 + 엔드 기존 함수
         btnBegin.setOnClickListener {
             createdAsleepConfig?.let { config ->
                 Asleep.beginSleepTracking(
@@ -150,16 +160,39 @@ class AlarmFragment : Fragment() {
             Asleep.endSleepTracking()
             showToast("tracking 종료")
         }
-
-        btnReport.setOnClickListener {
-            createdSessionId?.let { fetchReport(it) } ?: showToast("session 없음")
-        }
-
+       */
         btnShareList.setOnClickListener {
             startActivity(Intent(requireContext(), kr.ac.jbnu.jun.mobileprojectgit.SleepShareActivity::class.java))
         }
     }
 
+    //기존 비긴 버튼 눌렀을 때 기능 함수화
+    fun beginFun()
+    {
+        createdAsleepConfig?.let { config ->
+            Asleep.beginSleepTracking(
+                asleepConfig = config,
+                asleepTrackingListener = object : Asleep.AsleepTrackingListener {
+                    override fun onFail(errorCode: Int, detail: String) {
+                        showToast("begin 실패: $detail")
+                    }
+
+                    override fun onStart(sessionId: String) {
+                        createdSessionId = sessionId
+                        showToast("tracking 시작됨")
+                    }
+
+                    override fun onFinish(sessionId: String?) {
+                        sessionId?.let {
+                            createdSessionId = it
+                            fetchReport(it)
+                        }
+                    }
+
+                    override fun onPerform(sequence: Int) {}
+                })
+        } ?: showToast("먼저 init 해주세요")
+    }
     private fun fetchReport(sessionId: String) {
         Asleep.createReports(createdAsleepConfig)?.getReport(
             sessionId = sessionId,

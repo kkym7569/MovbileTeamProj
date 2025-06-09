@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //닉네임 체크
     private fun checkNickname(userId: String?) {
         if (userId == null) {
             goToNickname()
