@@ -169,6 +169,7 @@ class AlarmFragment : Fragment() {
     //기존 비긴 버튼 눌렀을 때 기능 함수화
     fun beginFun()
     {
+        showToast("비긴 시작")
         createdAsleepConfig?.let { config ->
             Asleep.beginSleepTracking(
                 asleepConfig = config,

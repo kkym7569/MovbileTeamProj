@@ -4,18 +4,24 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kr.ac.jbnu.jun.mobileprojectgit.NicknameActivity // ✅ 이 줄 추가로 오류 해결
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        ActivityCompat.requestPermissions(
+            this@MainActivity,
+            arrayOf(android.Manifest.permission.RECORD_AUDIO,
+                android.Manifest.permission.POST_NOTIFICATIONS),
+            0)
 
         // NavController 연결
         val navHostFragment = supportFragmentManager
@@ -34,6 +40,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             checkNickname(user.uid)
         }
+
+
     }
 
     //닉네임 체크
