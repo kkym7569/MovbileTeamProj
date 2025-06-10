@@ -25,7 +25,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kr.ac.jbnu.jun.mobileprojectgit.R
 import kr.ac.jbnu.jun.mobileprojectgit.alarm.AlarmReceiver
 import kr.ac.jbnu.jun.mobileprojectgit.util.SleepCycleUtil
+import java.time.Duration
+import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.Calendar
 
 class AlarmFragment : Fragment() {
@@ -223,17 +226,50 @@ class AlarmFragment : Fragment() {
 
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
             val nickname = doc.getString("nickname") ?: "익명"
+
+            val startStr: String? = report?.session?.startTime
+            val endStr:   String? = report?.session?.endTime
+
+            val startInstant: Instant? = startStr?.let {
+                try {
+                    Instant.parse(it)
+                } catch (e: DateTimeParseException) {
+                    null
+                }
+            }
+            val endInstant: Instant? = endStr?.let {
+                try {
+                    Instant.parse(it)
+                } catch (e: DateTimeParseException) {
+                    null
+                }
+            }
+
+            val durationHours: Double = if (startInstant != null && endInstant != null) {
+                val millis = Duration.between(startInstant, endInstant).toMillis()
+                millis.toDouble() / 1000.0 / 60.0 / 60.0
+            } else {
+                0.0
+            }
+
+
             val sleepData = hashMapOf(
-                "nickname" to nickname,
-                "startTime" to (report?.session?.startTime?.toString() ?: ""),
-                "endTime" to (report?.session?.endTime?.toString() ?: ""),
-                "duration" to 0
+                "nickname"  to nickname,
+                "startTime" to (startStr ?: ""),
+                "endTime"   to (endStr   ?: ""),
+                "duration"  to durationHours
             )
-            db.collection("users").document(uid).collection("sleeps")
+
+            db.collection("users")
+                .document(uid)
+                .collection("sleeps")
                 .add(sleepData)
                 .addOnSuccessListener { showToast("기록 저장됨") }
                 .addOnFailureListener { showToast("기록 실패") }
         }
+            .addOnFailureListener {
+                showToast("사용자 정보 읽기 실패")
+            }
     }
 
     private fun scheduleAlarm(hour: Int, minute: Int) {

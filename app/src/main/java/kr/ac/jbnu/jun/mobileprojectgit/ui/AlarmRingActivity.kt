@@ -1,16 +1,19 @@
 package kr.ac.jbnu.jun.mobileprojectgit.ui
 
+import ai.asleep.asleepsdk.Asleep
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.media.MediaPlayer
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.PowerManager
+import android.os.Vibrator
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import kr.ac.jbnu.jun.mobileprojectgit.MainActivity
 import kr.ac.jbnu.jun.mobileprojectgit.R
 
 class AlarmRingActivity : AppCompatActivity() {
@@ -73,8 +76,25 @@ class AlarmRingActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
 
-            finishAffinity() // 안전하게 앱 종료
+            finish()
         }
+    }
+
+    private fun stopAlarmSound() {
+        try {
+            if (::player.isInitialized && player.isPlaying) {
+                player.stop()
+                player.release()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun finish() {
+        Asleep.endSleepTracking()
+        Toast.makeText(this, "트래킹이 종료되었습니다", Toast.LENGTH_SHORT).show()
+        super.finish()
     }
 
     override fun onDestroy() {
