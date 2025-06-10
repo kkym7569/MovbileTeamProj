@@ -1,16 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="#0A0F2C"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/stats_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="통계 탭입니다"
-        android:textSize="20sp"
-        android:textColor="#FFFFFF"
-        android:layout_gravity="center" />
-</FrameLayout>
+    <!-- 상단 영역: 개인 수면기록 통계 -->
+    <LinearLayout
+        android:id="@+id/layoutTop"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/stats_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="개인 수면기록 통계"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:gravity="center_horizontal" />
+
+        <!-- 여기 다른 통계 UI 넣어도 됨 -->
+    </LinearLayout>
+
+    <!-- 하단 영역: 비교 통계 -->
+    <LinearLayout
+        android:id="@+id/layoutBottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvSleepReport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="성별 나이대 별 비교 통계"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/tvMyInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="내 나이:    내 성별:"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="8dp"
+            android:gravity="center_horizontal"
+            android:singleLine="true" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvComparisonStats"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:padding="8dp"
+            />
+
+        <TextView
+            android:id="@+id/tvNoData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="현재 나와 비슷한 상황의 데이터 없음"
+            android:textSize="16sp"
+            android:textColor="#FFCCCCCC"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:id="@+id/tvCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="대상 인원: 0"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tvAvgDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="평균 수면시간: 0.0"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="4dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

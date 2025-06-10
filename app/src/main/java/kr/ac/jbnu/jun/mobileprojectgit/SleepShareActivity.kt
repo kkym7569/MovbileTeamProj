@@ -1,20 +1,15 @@
 package kr.ac.jbnu.jun.mobileprojectgit
 
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kr.ac.jbnu.jun.mobileprojectgit.adapter.SleepRecordAdapter
 import kr.ac.jbnu.jun.mobileprojectgit.model.SleepRecord
 
 class SleepShareActivity : AppCompatActivity() {
-    private lateinit var recyclerView: RecyclerView
+   private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SleepRecordAdapter
     private val recordList = mutableListOf<SleepRecord>()
 

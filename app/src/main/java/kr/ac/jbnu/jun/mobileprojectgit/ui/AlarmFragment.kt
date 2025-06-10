@@ -1,5 +1,9 @@
 package kr.ac.jbnu.jun.mobileprojectgit.ui
 
+import ai.asleep.asleepsdk.Asleep
+import ai.asleep.asleepsdk.data.AsleepConfig
+import ai.asleep.asleepsdk.data.Report
+import ai.asleep.asleepsdk.tracking.Reports
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
@@ -21,11 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kr.ac.jbnu.jun.mobileprojectgit.R
 import kr.ac.jbnu.jun.mobileprojectgit.alarm.AlarmReceiver
 import kr.ac.jbnu.jun.mobileprojectgit.util.SleepCycleUtil
-import ai.asleep.asleepsdk.Asleep
-import ai.asleep.asleepsdk.data.AsleepConfig
-import ai.asleep.asleepsdk.data.Report
-import ai.asleep.asleepsdk.tracking.Reports
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
@@ -38,7 +37,6 @@ class AlarmFragment : Fragment() {
     private lateinit var btnInit: Button
     private lateinit var btnBegin: Button
     private lateinit var btnEnd: Button
-    private lateinit var btnReport: Button
     private lateinit var btnShareList: Button
 
     private var createdUserId: String? = null
@@ -81,7 +79,7 @@ class AlarmFragment : Fragment() {
                     btnSuggested.text = selected.format(timeFmt)
                     scheduleAlarm(selected.hour, selected.minute)
 
-                    //기존 비긴 함수 기능 넣음
+                    //알람 설정 구간 기존 비긴 함수 기능 넣음
                     beginFun()
                 }
                 .setOnCancelListener {
@@ -100,7 +98,7 @@ class AlarmFragment : Fragment() {
                 val recStrings = recStarts.joinToString("  |  ") { it.format(timeFmt) }
                 tvSleepStartRecommend.text = "추천 수면 시작: $recStrings"
 
-                //여기에 기존 비긴 기능 넣음
+                // 알람 설정 구간 기존 비긴 기능 넣음
                 beginFun()
             },
                 c.get(Calendar.HOUR_OF_DAY),
@@ -155,12 +153,12 @@ class AlarmFragment : Fragment() {
                     })
             } ?: showToast("먼저 init 해주세요")
         }
-
+ */
         btnEnd.setOnClickListener {
-            Asleep.endSleepTracking()
-            showToast("tracking 종료")
+            EndFun()
         }
-       */
+
+
         btnShareList.setOnClickListener {
             startActivity(Intent(requireContext(), kr.ac.jbnu.jun.mobileprojectgit.SleepShareActivity::class.java))
         }
@@ -169,7 +167,6 @@ class AlarmFragment : Fragment() {
     //기존 비긴 버튼 눌렀을 때 기능 함수화
     fun beginFun()
     {
-        showToast("비긴 시작")
         createdAsleepConfig?.let { config ->
             Asleep.beginSleepTracking(
                 asleepConfig = config,
@@ -194,6 +191,14 @@ class AlarmFragment : Fragment() {
                 })
         } ?: showToast("먼저 init 해주세요")
     }
+
+    //기존 엔드 버튼 눌렀을 때 기능 함수화
+    fun EndFun()
+    {
+        Asleep.endSleepTracking()
+        showToast("tracking 종료")
+    }
+
     private fun fetchReport(sessionId: String) {
         Asleep.createReports(createdAsleepConfig)?.getReport(
             sessionId = sessionId,
@@ -210,6 +215,7 @@ class AlarmFragment : Fragment() {
         )
     }
 
+//파이어 스토어에 저장하는 함수
     private fun saveSleepRecordToFirestore(report: Report?) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val uid = user.uid

@@ -50,9 +50,9 @@ class NicknameActivity : AppCompatActivity() {
                 findViewById<RadioButton>(selectedGenderId).text.toString()
             } else null
 
-            val gender = when (genderText) {
-                "남" -> "Male"
-                "여" -> "Female"
+            val gender: Long? = when (genderText) {
+                "남" -> 0L
+                "여" -> 1L
                 else -> null
             }
 
@@ -71,7 +71,7 @@ class NicknameActivity : AppCompatActivity() {
     }
 
 
-    private fun saveNicknameToFirestore(nickname: String, gender: String, age: Long) {
+    private fun saveNicknameToFirestore(nickname: String, gender: Long, age: Long) {
         // 익명 로그인 or 이미 로그인된 상태면 재로그인 X
         val auth = FirebaseAuth.getInstance()
         if (auth.currentUser == null) {
@@ -87,7 +87,7 @@ class NicknameActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveUserData(userId: String?, nickname: String, gender: String, age: Long) {
+    private fun saveUserData(userId: String?, nickname: String, gender: Long, age: Long) {
         if (userId == null) {
             Toast.makeText(this, "유저 정보 없음", Toast.LENGTH_SHORT).show()
             Log.d("test", "유저 정보 없음! userId=null")
