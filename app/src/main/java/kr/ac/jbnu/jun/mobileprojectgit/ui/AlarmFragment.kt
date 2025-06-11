@@ -16,17 +16,34 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kr.ac.jbnu.jun.mobileprojectgit.R
 import kr.ac.jbnu.jun.mobileprojectgit.alarm.AlarmReceiver
 import kr.ac.jbnu.jun.mobileprojectgit.util.SleepCycleUtil
+import ai.asleep.asleepsdk.Asleep
+import ai.asleep.asleepsdk.data.AsleepConfig
+import ai.asleep.asleepsdk.data.Report
+import ai.asleep.asleepsdk.tracking.Reports
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 class AlarmFragment : Fragment() {
+
     private lateinit var btnSuggested: Button
     private lateinit var btnSetWake: Button
     private lateinit var tvSleepStartRecommend: TextView
+
+    private lateinit var btnInit: Button
+    private lateinit var btnBegin: Button
+    private lateinit var btnEnd: Button
+    private lateinit var btnReport: Button
+    private lateinit var btnShareList: Button
+
+    private var createdUserId: String? = null
+    private var createdAsleepConfig: AsleepConfig? = null
+    private var createdSessionId: String? = null
 
     private val timeFmt = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -40,6 +57,12 @@ class AlarmFragment : Fragment() {
         btnSetWake = view.findViewById(R.id.btn_set_wake_time)
         tvSleepStartRecommend = view.findViewById(R.id.tv_sleep_start_recommend)
 
+        btnInit = view.findViewById(R.id.btn_init)
+        btnBegin = view.findViewById(R.id.btn_begin)
+        btnEnd = view.findViewById(R.id.btn_end)
+        btnReport = view.findViewById(R.id.btn_report)
+        btnShareList = view.findViewById(R.id.btnShareList)
+
         btnSuggested.text = "--:--"
         btnSetWake.text = "--:--"
         tvSleepStartRecommend.text = ""
@@ -52,44 +75,134 @@ class AlarmFragment : Fragment() {
             )
             val items = recTimes.map { it.format(timeFmt) }.toTypedArray()
 
-            val dialog = AlertDialog.Builder(requireContext())
+            AlertDialog.Builder(requireContext())
                 .setTitle("추천 기상 시간")
                 .setItems(items) { _, idx ->
-                    val selected: LocalTime = recTimes[idx]
+                    val selected = recTimes[idx]
                     btnSuggested.text = selected.format(timeFmt)
                     scheduleAlarm(selected.hour, selected.minute)
-                }
-                .create()
-            dialog.show()
+                }.show()
         }
 
         btnSetWake.setOnClickListener {
             val c = Calendar.getInstance()
-            TimePickerDialog(requireContext(),
-                { _, h, m ->
-                    val strTime = String.format("%02d:%02d", h, m)
-                    btnSetWake.text = strTime
-                    scheduleAlarm(h, m)
+            TimePickerDialog(requireContext(), { _, h, m ->
+                val strTime = String.format("%02d:%02d", h, m)
+                btnSetWake.text = strTime
+                scheduleAlarm(h, m)
 
-                    val recStarts = SleepCycleUtil.getRecommendedSleepTimes(h, m)
-                    val recStrings = recStarts.joinToString("  |  ") { it.format(timeFmt) }
-                    tvSleepStartRecommend.text = "추천 수면 시작: $recStrings"
-                },
+                val recStarts = SleepCycleUtil.getRecommendedSleepTimes(h, m)
+                val recStrings = recStarts.joinToString("  |  ") { it.format(timeFmt) }
+                tvSleepStartRecommend.text = "추천 수면 시작: $recStrings"
+            },
                 c.get(Calendar.HOUR_OF_DAY),
                 c.get(Calendar.MINUTE),
                 false
             ).show()
+        }
+
+        btnInit.setOnClickListener {
+            Asleep.initAsleepConfig(
+                context = requireContext(),
+                apiKey = "zhfpK9DcIzv0YQlUHE6swAb1Zs92jaiDanBLoaeX",
+                userId = null,
+                service = "Test App",
+                asleepConfigListener = object : Asleep.AsleepConfigListener {
+                    override fun onFail(errorCode: Int, detail: String) {
+                        showToast("init 실패: $detail")
+                    }
+
+                    override fun onSuccess(userId: String?, asleepConfig: AsleepConfig?) {
+                        showToast("init 성공")
+                        createdUserId = userId
+                        createdAsleepConfig = asleepConfig
+                    }
+                })
+        }
+
+        btnBegin.setOnClickListener {
+            createdAsleepConfig?.let { config ->
+                Asleep.beginSleepTracking(
+                    asleepConfig = config,
+                    asleepTrackingListener = object : Asleep.AsleepTrackingListener {
+                        override fun onFail(errorCode: Int, detail: String) {
+                            showToast("begin 실패: $detail")
+                        }
+
+                        override fun onStart(sessionId: String) {
+                            createdSessionId = sessionId
+                            showToast("tracking 시작됨")
+                        }
+
+                        override fun onFinish(sessionId: String?) {
+                            sessionId?.let {
+                                createdSessionId = it
+                                fetchReport(it)
+                            }
+                        }
+
+                        override fun onPerform(sequence: Int) {}
+                    })
+            } ?: showToast("먼저 init 해주세요")
+        }
+
+        btnEnd.setOnClickListener {
+            Asleep.endSleepTracking()
+            showToast("tracking 종료")
+        }
+
+        btnReport.setOnClickListener {
+            createdSessionId?.let { fetchReport(it) } ?: showToast("session 없음")
+        }
+
+        btnShareList.setOnClickListener {
+            startActivity(Intent(requireContext(), kr.ac.jbnu.jun.mobileprojectgit.SleepShareActivity::class.java))
+        }
+    }
+
+    private fun fetchReport(sessionId: String) {
+        Asleep.createReports(createdAsleepConfig)?.getReport(
+            sessionId = sessionId,
+            reportListener = object : Reports.ReportListener {
+                override fun onFail(errorCode: Int, detail: String) {
+                    showToast("report 실패: $detail")
+                }
+
+                override fun onSuccess(report: Report?) {
+                    showToast("report 성공")
+                    saveSleepRecordToFirestore(report)
+                }
+            }
+        )
+    }
+
+    private fun saveSleepRecordToFirestore(report: Report?) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = user.uid
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val nickname = doc.getString("nickname") ?: "익명"
+            val sleepData = hashMapOf(
+                "nickname" to nickname,
+                "startTime" to (report?.session?.startTime?.toString() ?: ""),
+                "endTime" to (report?.session?.endTime?.toString() ?: ""),
+                "duration" to 0
+            )
+            db.collection("users").document(uid).collection("sleeps")
+                .add(sleepData)
+                .addOnSuccessListener { showToast("기록 저장됨") }
+                .addOnFailureListener { showToast("기록 실패") }
         }
     }
 
     private fun scheduleAlarm(hour: Int, minute: Int) {
         val am = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // ✅ Android 12 이상 권한 체크
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
             val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
             startActivity(intent)
-            Toast.makeText(context, "정확한 알람 권한을 허용해주세요.", Toast.LENGTH_LONG).show()
+            showToast("정확한 알람 권한을 허용해주세요.")
             return
         }
 
@@ -108,10 +221,11 @@ class AlarmFragment : Fragment() {
 
         am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, c.timeInMillis, pi)
 
-        Toast.makeText(
-            context,
-            "알람이 ${String.format("%02d:%02d", hour, minute)}에 설정되었습니다.",
-            Toast.LENGTH_SHORT
-        ).show()
+        showToast("알람이 ${String.format("%02d:%02d", hour, minute)}에 설정되었습니다.")
     }
+
+    private fun showToast(msg: String) {
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+    }
+
 }
