@@ -194,6 +194,7 @@ class AlarmFragment : Fragment() {
         }
 
 
+
         btnShareList.setOnClickListener {
             startActivity(Intent(requireContext(), kr.ac.jbnu.jun.mobileprojectgit.SleepShareActivity::class.java))
         }
