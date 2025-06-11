@@ -16,7 +16,7 @@ class SearchUserAdapter(
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNickname: TextView = view.findViewById(R.id.tv_nickname)
-        val btnAdd: ImageView = view.findViewById(R.id.btn_add_friend)
+        val btnAdd: TextView = view.findViewById(R.id.btn_add_friend)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

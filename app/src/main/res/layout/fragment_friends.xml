@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="#0A0F2C"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -7,36 +9,44 @@
     android:padding="16dp">
 
     <!-- 상단 툴바: ➕ 버튼과 🔔 버튼 -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end"
+        android:layout_height="95dp"
         android:paddingBottom="8dp">
 
         <!-- ➕ 친구 추가 버튼 -->
+
+        <!-- 🔔 알림 버튼 -->
+
         <TextView
             android:id="@+id/btn_add_friend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="친구 추가"
+            android:padding="4dp"
             android:text="➕"
             android:textSize="24sp"
-            android:layout_marginEnd="16dp"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="친구 추가" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_request_alert"
+            app:layout_constraintHorizontal_bias="0.933"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 🔔 알림 버튼 -->
         <TextView
             android:id="@+id/btn_request_alert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="알림"
+            android:padding="4dp"
             android:text="🔔"
             android:textSize="24sp"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="알림" />
-    </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 친구 목록 RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView

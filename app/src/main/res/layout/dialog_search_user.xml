@@ -9,11 +9,19 @@
         android:id="@+id/etSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="닉네임으로 친구 검색" />
+        android:hint="닉네임으로 친구 검색"
+        android:inputType="text|textNoSuggestions|textVisiblePassword" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvUserSearch"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_marginTop="10dp"/>
+    <TextView
+        android:id="@+id/tvNoResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="닉네임이 없습니다"
+        android:textAlignment="center"
+        android:visibility="gone"/>
 </LinearLayout>

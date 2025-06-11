@@ -2,6 +2,7 @@ package kr.ac.jbnu.jun.mobileprojectgit.ui.dialog
 
 import android.app.Dialog
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,8 +40,10 @@ class FriendRequestDialog : DialogFragment() {
     }
 
     private fun loadRequests() {
+        val myUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
         db.collection("requests")
-            .whereEqualTo("receiver", currentUid)
+            .whereEqualTo("receiver", myUid)
             .get()
             .addOnSuccessListener { snapshot ->
                 requestList.clear()
@@ -55,17 +58,23 @@ class FriendRequestDialog : DialogFragment() {
             }
     }
 
+
     private fun acceptFriendRequest(user: User) {
-        // 친구 목록에 추가하고 요청 삭제
+        val db = FirebaseFirestore.getInstance()
+        val myUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // 내 닉네임 가져오는 코드 필요
+        val myNickname = "내닉네임" // 실제로 내 닉네임 fetch해서 써야 함
+
         val batch = db.batch()
-        val myUid = currentUid ?: return
+        // 내 친구목록에 추가
+        val myRef = db.collection("friends").document(myUid).collection("list").document(user.uid)
+        batch.set(myRef, mapOf("nickname" to user.nickname))
+        // 상대방 친구목록에 나 추가
+        val theirRef = db.collection("friends").document(user.uid).collection("list").document(myUid)
+        batch.set(theirRef, mapOf("nickname" to myNickname))
 
-        val myRef = db.collection("friends").document(myUid)
-        val theirRef = db.collection("friends").document(user.uid)
-
-        batch.set(myRef.collection("list").document(user.uid), mapOf("nickname" to user.nickname))
-        batch.set(theirRef.collection("list").document(myUid), mapOf("nickname" to "나")) // 실제 닉네임 필요
-
+        // 요청문서 찾아서 삭제
         db.collection("requests")
             .whereEqualTo("receiver", myUid)
             .whereEqualTo("sender", user.uid)
@@ -74,7 +83,10 @@ class FriendRequestDialog : DialogFragment() {
                 for (doc in snapshot) {
                     batch.delete(doc.reference)
                 }
-                batch.commit()
+                batch.commit().addOnSuccessListener {
+                    Toast.makeText(requireContext(), "친구로 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                    loadRequests() // 리스트 갱신
+                }
             }
     }
 }
