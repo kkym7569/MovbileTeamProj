@@ -38,11 +38,12 @@ class AlarmFragment : Fragment() {
     private lateinit var btnSetWake: Button
     private lateinit var tvSleepStartRecommend: TextView
 
+    /*
     private lateinit var btnInit: Button
     private lateinit var btnBegin: Button
     private lateinit var btnEnd: Button
     private lateinit var btnShareList: Button
-
+*/
     private var createdUserId: String? = null
     private var createdAsleepConfig: AsleepConfig? = null
     private var createdSessionId: String? = null
@@ -66,6 +67,7 @@ class AlarmFragment : Fragment() {
                 override fun onFail(errorCode: Int, detail: String) {
                     showToast("init 실패: $detail")
                 }
+
                 override fun onSuccess(userId: String?, asleepConfig: AsleepConfig?) {
                     showToast("init 성공")
                     createdUserId = userId
@@ -78,10 +80,13 @@ class AlarmFragment : Fragment() {
         btnSetWake = view.findViewById(R.id.btn_set_wake_time)
         tvSleepStartRecommend = view.findViewById(R.id.tv_sleep_start_recommend)
 
+
+        /*없애도 될듯
         btnInit = view.findViewById(R.id.btn_init)
         btnBegin = view.findViewById(R.id.btn_begin)
         btnEnd = view.findViewById(R.id.btn_end)
         btnShareList = view.findViewById(R.id.btnShareList)
+        */
 
         btnSuggested.text = "--:--"
         btnSetWake.text = "--:--"
@@ -130,6 +135,7 @@ class AlarmFragment : Fragment() {
             ).show()
         }
 
+/* 기본 버튼 함수
         btnInit.setOnClickListener {
             Asleep.initAsleepConfig(
                 context = requireContext(),
@@ -191,7 +197,9 @@ class AlarmFragment : Fragment() {
         btnShareList.setOnClickListener {
             startActivity(Intent(requireContext(), kr.ac.jbnu.jun.mobileprojectgit.SleepShareActivity::class.java))
         }
+        */
     }
+
 
     //기존 비긴 버튼 눌렀을 때 기능 함수화
     fun beginFun()

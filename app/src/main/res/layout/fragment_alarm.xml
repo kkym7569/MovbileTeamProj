@@ -77,7 +77,7 @@
             android:textSize="14sp"
             android:layout_marginBottom="24dp"/>
 
-        <!-- 🔽 추가된 버튼 5개 -->
+        <!-- 주석처리
         <Button
             android:id="@+id/btn_init"
             android:layout_width="wrap_content"
@@ -105,5 +105,6 @@
             android:layout_height="wrap_content"
             android:text="수면 기록 공유 보기/ 없앨 버튼임"
             android:layout_marginBottom="24dp" />
+-->
     </LinearLayout>
 </ScrollView>
