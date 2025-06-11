@@ -12,6 +12,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,6 +55,25 @@ class AlarmFragment : Fragment() {
     ): View? = inflater.inflate(R.layout.fragment_alarm, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        //init 기능
+        Asleep.initAsleepConfig(
+            context = requireContext(),
+            apiKey = "zhfpK9DcIzv0YQlUHE6swAb1Zs92jaiDanBLoaeX",
+            userId = null,
+            service = "Test App",
+            asleepConfigListener = object : Asleep.AsleepConfigListener {
+                override fun onFail(errorCode: Int, detail: String) {
+                    showToast("init 실패: $detail")
+                }
+                override fun onSuccess(userId: String?, asleepConfig: AsleepConfig?) {
+                    showToast("init 성공")
+                    createdUserId = userId
+                    createdAsleepConfig = asleepConfig
+                }
+            }
+        )
+
         btnSuggested = view.findViewById(R.id.btn_suggested_wake_time)
         btnSetWake = view.findViewById(R.id.btn_set_wake_time)
         tvSleepStartRecommend = view.findViewById(R.id.tv_sleep_start_recommend)
@@ -130,33 +150,39 @@ class AlarmFragment : Fragment() {
         }
 
 
-        /*비긴 + 엔드 기존 함수
+
         btnBegin.setOnClickListener {
             createdAsleepConfig?.let { config ->
+                Log.d("AlarmFragment", "  • config is not null, beginSleepTracking 실행")
                 Asleep.beginSleepTracking(
                     asleepConfig = config,
                     asleepTrackingListener = object : Asleep.AsleepTrackingListener {
                         override fun onFail(errorCode: Int, detail: String) {
+                            Log.d("AlarmFragment", "▶ onFail: code=$errorCode, detail=$detail")
                             showToast("begin 실패: $detail")
                         }
 
                         override fun onStart(sessionId: String) {
                             createdSessionId = sessionId
+                            Log.d("AlarmFragment", "▶ onStart! session=$sessionId")
                             showToast("tracking 시작됨")
                         }
 
                         override fun onFinish(sessionId: String?) {
                             sessionId?.let {
                                 createdSessionId = it
+                                Log.d("AlarmFragment", "▶ onFinish session=$sessionId")
                                 fetchReport(it)
                             }
                         }
 
-                        override fun onPerform(sequence: Int) {}
+                        override fun onPerform(sequence: Int) {
+                            Log.d("AlarmFragment", "▶ onPerform seq=$sequence")
+                        }
                     })
             } ?: showToast("먼저 init 해주세요")
         }
- */
+
         btnEnd.setOnClickListener {
             EndFun()
         }
@@ -170,27 +196,35 @@ class AlarmFragment : Fragment() {
     //기존 비긴 버튼 눌렀을 때 기능 함수화
     fun beginFun()
     {
+        Log.d("AlarmFragment", "▶ beginFun() 호출됨, config=$createdAsleepConfig")
+        showToast("▶ beginFun 호출")
         createdAsleepConfig?.let { config ->
+            Log.d("AlarmFragment", "  • config is not null, beginSleepTracking 실행")
             Asleep.beginSleepTracking(
                 asleepConfig = config,
                 asleepTrackingListener = object : Asleep.AsleepTrackingListener {
                     override fun onFail(errorCode: Int, detail: String) {
+                        Log.d("AlarmFragment", "▶ onFail: code=$errorCode, detail=$detail")
                         showToast("begin 실패: $detail")
                     }
 
                     override fun onStart(sessionId: String) {
                         createdSessionId = sessionId
+                        Log.d("AlarmFragment", "▶ onStart! session=$sessionId")
                         showToast("tracking 시작됨")
                     }
 
                     override fun onFinish(sessionId: String?) {
                         sessionId?.let {
                             createdSessionId = it
+                            Log.d("AlarmFragment", "▶ onFinish session=$sessionId")
                             fetchReport(it)
                         }
                     }
 
-                    override fun onPerform(sequence: Int) {}
+                    override fun onPerform(sequence: Int) {
+                        Log.d("AlarmFragment", "▶ onPerform seq=$sequence")
+                    }
                 })
         } ?: showToast("먼저 init 해주세요")
     }

@@ -7,9 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -32,6 +39,8 @@ class StatsFragment : Fragment() {
     private lateinit var tvRecentDuration: TextView
 
     private lateinit var tvComparisonRemark: TextView
+    private lateinit var barChart: BarChart
+
 
     private val recordList = mutableListOf<SleepRecord>()
     private var populationAvgDuration: Double = 0.0
@@ -61,9 +70,10 @@ class StatsFragment : Fragment() {
 
         rvComparison.adapter = compAdapter
 
+        barChart = view.findViewById(R.id.barChart)
+        setupChart()
 
         loadMyInfo()
-
         return view
     }
 
@@ -126,7 +136,7 @@ class StatsFragment : Fragment() {
             .addOnSuccessListener { docs ->
                 // 1) 인원 수
                 val count = docs.size()
-                tvCount.text = "대상 인원: $count"
+                tvCount.text = "유사한 $count 개의 데이터를 찾았습니다. "
 
                 // 2) 수면시간 합계·평균
                 var sum = 0.0
@@ -163,43 +173,97 @@ class StatsFragment : Fragment() {
     }
     private fun loadMyRecentSleep() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
-        val uid  = user.uid
-        val db   = FirebaseFirestore.getInstance()
-
-        db.collection("users")
-            .document(uid)
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(user.uid)
             .collection("sleeps")
             .orderBy("startTime", Query.Direction.DESCENDING)
             .limit(1)
             .get()
             .addOnSuccessListener { docs ->
+                Log.d("StatsFragment", "▶ sleeps 문서 개수 = ${docs.size()}")
                 if (docs.isEmpty) {
-                    // … 없음 처리 …
-                    tvComparisonRemark.text = ""
+                    // 1) 빈 데이터이므로 0.0 vs 평균으로 차트 그리기
+                    drawComparisonChart(
+                        myValue  = 0.0,
+                        popValue = populationAvgDuration
+                    )
+                    // 2) 안내 텍스트
+                    tvComparisonRemark.text = "최근 수면 기록이 없어요"
                 } else {
-                    val doc = docs.documents.first()
-                    val startStr = doc.getString("startTime") ?: ""
-                    val duration = doc.getDouble("duration") ?: 0.0
+                    // 기존 로직: 실제 duration 값을 받아와 그리기
+                    val duration = docs.documents.first().getDouble("duration") ?: 0.0
+                    drawComparisonChart(duration, populationAvgDuration)
 
-                    // 날짜·시간 표시 (기존)
-                    tvRecentDate.text = "나의 최근 수면 일자: ${startStr.take(10)}"
-                    tvRecentDuration.text = "나의 최근 수면 시간: %.2f시간".format(duration)
-
-                    // ▶ 평균과 비교
+                    // 기존 Remark 세팅
                     val diff = duration - populationAvgDuration
-                    Log.d("StatsFragment", "▶ duration=$duration, avg=$populationAvgDuration, diff=$diff")
-
                     tvComparisonRemark.text = when {
-                        diff < 0 -> "평균보다 %.2f시간 못 잤습니다".format(-diff)
-                        diff > 0 -> "평균보다 %.2f시간 더 잤습니다".format(diff)
-                        else -> "평균과 같습니다"
+                        diff < 0  -> "평균보다 %.2f시간 못 잤습니다".format(-diff)
+                        diff > 0  -> "평균보다 %.2f시간 더 잤습니다".format(diff)
+                        else      -> "평균과 같습니다"
                     }
                 }
             }
-            .addOnFailureListener {
-                tvRecentDate.text     = "나의 최근 수면 일자: 불러오기 실패"
-                tvRecentDuration.text = "나의 최근 수면 시간: 불러오기 실패"
+            .addOnFailureListener { e ->
+                Log.e("StatsFragment", "최근 수면 조회 실패", e)
             }
+    }
+    private fun setupChart() {
+
+        val white = ContextCompat.getColor(requireContext(), R.color.white)
+        barChart.apply {
+            description.isEnabled = false
+            legend.isEnabled = false
+
+            // 왼쪽 Y축 설정
+            axisLeft.apply {
+                isEnabled = true
+                setDrawLabels(true)
+                setDrawGridLines(true)
+                granularity = 1f
+                labelCount = 6
+                axisMinimum = 0f
+
+                textColor = white
+                gridColor = white
+
+            }
+
+            // 오른쪽 Y축은 끌 거면
+            axisRight.isEnabled = false
+
+            // X축 설정
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawLabels(true)
+                setDrawGridLines(false)
+                granularity = 1f
+
+                textColor = white
+                valueFormatter = IndexAxisValueFormatter(listOf("내 최근 수면", "평균 수면"))
+            }
+
+            animateY(600)
+        }
+    }
+
+    /** 그래프에 데이터 바인딩 */
+    private fun drawComparisonChart(myValue: Double, popValue: Double) {
+        val entries = listOf(
+            BarEntry(0f, myValue.toFloat()),
+            BarEntry(1f, popValue.toFloat())
+        )
+        val set = BarDataSet(entries, "수면시간 비교").apply {
+            setColors(
+                resources.getColor(R.color.teal_700, null),
+                resources.getColor(R.color.red_700, null)
+            )
+            valueTextSize = 12f
+        }
+        barChart.data = BarData(set).apply { barWidth = 0.5f }
+        barChart.xAxis.valueFormatter =
+            IndexAxisValueFormatter(listOf("내 최근 수면", "평균 수면"))
+        barChart.invalidate()
     }
 }
 

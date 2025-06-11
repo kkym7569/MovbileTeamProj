@@ -50,6 +50,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10")
     implementation("ai.asleep:asleepsdk:3.1.0")
     implementation("com.google.android.gms:play-services-base:18.2.0")
+    implementation ("com.github.PhilJay:MPAndroidChart:3.1.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -67,4 +68,5 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
 }
