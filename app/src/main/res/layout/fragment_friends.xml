@@ -1,57 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="#0A0F2C"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0A0F2C"
     android:padding="16dp">
 
-    <!-- 상단 툴바: ➕ 버튼과 🔔 버튼 -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- 상단바 (가로정렬) -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="95dp"
-        android:paddingBottom="8dp">
+        android:layout_height="27dp"
+        android:orientation="vertical"></LinearLayout>
 
-        <!-- ➕ 친구 추가 버튼 -->
+    <LinearLayout
+        android:id="@+id/layout_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="10dp">
 
-        <!-- 🔔 알림 버튼 -->
+        <Button
+            android:id="@+id/btnSelectDate"
+            android:layout_width="131dp"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:text="📅"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="" />
 
         <TextView
             android:id="@+id/btn_add_friend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="친구 추가"
-            android:padding="4dp"
             android:text="➕"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btn_request_alert"
-            app:layout_constraintHorizontal_bias="0.933"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textSize="22sp"
+            android:padding="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="친구 추가"/>
 
         <TextView
             android:id="@+id/btn_request_alert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="알림"
             android:padding="4dp"
             android:text="🔔"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:textSize="22sp" />
+
+    </LinearLayout>
 
     <!-- 친구 목록 RecyclerView -->
+    <TextView
+    android:id="@+id/tvEmptyFriends"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="친구가 아직 없어요"
+    android:textColor="#FFFFFF"
+    android:textSize="18sp"
+    android:gravity="center"
+    android:visibility="gone"
+    android:layout_marginTop="24dp"
+    android:layout_marginBottom="8dp"/>
     <androidx.recyclerview.widget.RecyclerView
+
         android:id="@+id/rv_sleep_friends"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"/>
 </LinearLayout>

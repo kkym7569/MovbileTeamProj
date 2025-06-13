@@ -4,6 +4,16 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp">
+    <TextView
+        android:id="@+id/tvMyNickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="내 닉네임: "
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="8dp"
+        android:layout_marginBottom="8dp"/>
 
     <EditText
         android:id="@+id/etSearch"
@@ -21,7 +31,7 @@
         android:id="@+id/tvNoResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="닉네임이 없습니다"
+        android:text="닉네임이 없거나 이미 친구입니다."
         android:textAlignment="center"
         android:visibility="gone"/>
 </LinearLayout>
