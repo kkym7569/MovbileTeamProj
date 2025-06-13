@@ -187,7 +187,7 @@ class AlarmFragment : Fragment() {
                 "nickname" to nickname,
                 "startTime" to (report?.session?.startTime?.toString() ?: ""),
                 "endTime" to (report?.session?.endTime?.toString() ?: ""),
-                "duration" to 0
+                "efficiency" to (report?.stat?.sleepEfficiency?.toFloat()?: "")
             )
             db.collection("users").document(uid).collection("sleeps")
                 .add(sleepData)
