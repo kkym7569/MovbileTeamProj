@@ -26,8 +26,13 @@ class FriendSleepAdapter(private val items: List<FriendSleepData>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.tvName.text = item.name
-        holder.tvSleepTime.text = "${item.sleepStart} ~ ${item.sleepEnd}"
-        holder.tvCondition.text = item.condition
+        if (!item.hasSleepData) {
+            holder.tvSleepTime.text = "수면 정보 없음"
+            holder.tvCondition.text = ""
+        } else {
+            holder.tvSleepTime.text = "${item.sleepStart} ~ ${item.sleepEnd}"
+            holder.tvCondition.text = item.condition
+        }
     }
 
     override fun getItemCount(): Int = items.size

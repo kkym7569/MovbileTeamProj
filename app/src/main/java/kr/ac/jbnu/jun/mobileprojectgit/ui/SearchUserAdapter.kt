@@ -1,5 +1,6 @@
 package kr.ac.jbnu.jun.mobileprojectgit.ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,7 @@ class SearchUserAdapter(
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNickname: TextView = view.findViewById(R.id.tv_nickname)
-        val btnAdd: ImageView = view.findViewById(R.id.btn_add_friend)
+        val btnAdd: TextView = view.findViewById(R.id.btn_add_friend)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,7 +29,9 @@ class SearchUserAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val user = users[position]
         holder.tvNickname.text = user.nickname
-        holder.btnAdd.setOnClickListener { onAddFriendClicked(user) }
+        holder.btnAdd.setOnClickListener {
+            Log.d("ADAPTER", "친구 추가 버튼 클릭: ${user.nickname}")
+            onAddFriendClicked(user) }
     }
 
     override fun getItemCount(): Int = users.size

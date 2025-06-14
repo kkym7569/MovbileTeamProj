@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -6,15 +5,17 @@
     android:padding="12dp"
     android:gravity="center_vertical">
 
+    <!-- 요청한 친구 닉네임 보여주는 TextView -->
     <TextView
         android:id="@+id/tv_requester"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="지훈"
-        android:textSize="16sp" />
+        android:text="닉네임"
+        android:textSize="16sp"
+        android:padding="6dp"/>
 
-    <!-- ➕ 수락 이모지 버튼 -->
+    <!-- ➕ 수락 이모지 버튼 (ImageView면 src, TextView면 text로) -->
     <TextView
         android:id="@+id/btn_accept"
         android:layout_width="wrap_content"
@@ -23,5 +24,5 @@
         android:textSize="18sp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:padding="6dp"
-        android:layout_gravity="center_vertical" />
+        android:gravity="center_vertical|center_horizontal"/>
 </LinearLayout>

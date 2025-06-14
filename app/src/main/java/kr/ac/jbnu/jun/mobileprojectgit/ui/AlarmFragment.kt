@@ -271,6 +271,7 @@ class AlarmFragment : Fragment() {
 
             val startStr: String? = report?.session?.startTime
             val endStr:   String? = report?.session?.endTime
+            val efficiency: Float? = report?.stat?.sleepEfficiency
 
             val startInstant: Instant? = startStr?.let {
                 try {
@@ -296,10 +297,10 @@ class AlarmFragment : Fragment() {
 
 
             val sleepData = hashMapOf(
-                "nickname"  to nickname,
+                "nickname" to nickname,
                 "startTime" to (startStr ?: ""),
-                "endTime"   to (endStr   ?: ""),
-                "duration"  to durationHours
+                "endTime" to (endStr ?: ""),
+                "efficiency" to efficiency
             )
 
             db.collection("users")
