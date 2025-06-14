@@ -37,13 +37,12 @@ class SearchUserDialog(private val onSendRequest: (User, Boolean) -> Unit) : Dia
 
 
         if (myUid != null) {
-            FirebaseFirestore.getInstance().collection("users")
-                .document(myUid)
+            db.collection("friends").document(myUid).collection("list")
                 .get()
-                .addOnSuccessListener { doc ->
-                    myNickname = doc.getString("nickname") ?: ""
-                    tvMyNickname.text = "내 닉네임: $myNickname"
-                    isMyNicknameLoaded = true
+                .addOnSuccessListener { friendsSnapshot ->
+                    for (doc in friendsSnapshot.documents) {
+                        myFriendUids.add(doc.id)
+                    }
                 }
         }
         etSearch.setOnEditorActionListener { v, _, _ ->
@@ -67,7 +66,11 @@ class SearchUserDialog(private val onSendRequest: (User, Boolean) -> Unit) : Dia
         rvUsers.layoutManager = LinearLayoutManager(context)
         rvUsers.adapter = adapter
 
-
+        etSearch.setOnEditorActionListener { v, _, _ ->
+            val query = v.text.toString()
+            searchUser(query, tvNoResult)
+            true
+        }
         if (myUid != null) {
             FirebaseFirestore.getInstance().collection("users")
                 .document(myUid)
