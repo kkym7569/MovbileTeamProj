@@ -6,9 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +25,23 @@ class SearchUserDialog(private val onSendRequest: (User, Boolean) -> Unit) : Dia
 
     private var myNickname: String? = null
     private var isMyNicknameLoaded = false
+
+    private fun loadMyFriendsAndSearch(nickname: String, tvNoResult: TextView) {
+        val myUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        db.collection("friends").document(myUid).collection("list")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                myFriendUids.clear()
+                for (doc in snapshot) {
+                    myFriendUids.add(doc.id)
+                }
+                Log.d("디버깅", "불러온 친구 수: ${myFriendUids.size}")
+
+                // nickname은 함수 매개변수로 전달된 값을 사용
+                searchUser(nickname, tvNoResult)
+            }
+    }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = requireActivity().layoutInflater.inflate(R.layout.dialog_search_user, null)
         val etSearch = view.findViewById<EditText>(R.id.etSearch)
@@ -37,17 +52,19 @@ class SearchUserDialog(private val onSendRequest: (User, Boolean) -> Unit) : Dia
 
 
         if (myUid != null) {
-            db.collection("friends").document(myUid).collection("list")
+            FirebaseFirestore.getInstance().collection("users")
+                .document(myUid)
                 .get()
-                .addOnSuccessListener { friendsSnapshot ->
-                    for (doc in friendsSnapshot.documents) {
-                        myFriendUids.add(doc.id)
-                    }
+                .addOnSuccessListener { doc ->
+                    myNickname = doc.getString("nickname") ?: ""
+                    tvMyNickname.text = getString(R.string.my_nickname_display, myNickname)
+                    isMyNicknameLoaded = true
                 }
         }
+
         etSearch.setOnEditorActionListener { v, _, _ ->
             val query = v.text.toString()
-            searchUser(query, tvNoResult)
+            loadMyFriendsAndSearch(query, tvNoResult) // 친구 먼저 불러오고, 그 후 검색
             true
         }
 // 어댑터에서 친구 요청 시
@@ -66,18 +83,14 @@ class SearchUserDialog(private val onSendRequest: (User, Boolean) -> Unit) : Dia
         rvUsers.layoutManager = LinearLayoutManager(context)
         rvUsers.adapter = adapter
 
-        etSearch.setOnEditorActionListener { v, _, _ ->
-            val query = v.text.toString()
-            searchUser(query, tvNoResult)
-            true
-        }
+
         if (myUid != null) {
             FirebaseFirestore.getInstance().collection("users")
                 .document(myUid)
                 .get()
                 .addOnSuccessListener { doc ->
                     val myNickname = doc.getString("nickname") ?: ""
-                    tvMyNickname.text = "내 닉네임: $myNickname"
+                    tvMyNickname.text = getString(R.string.my_nickname_display, myNickname)
                 }
         }
         return AlertDialog.Builder(requireContext())

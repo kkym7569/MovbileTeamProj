@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MobileProjectGit</string>
     <!-- TODO: Remove or change this placeholder text -->
-
+    <string name="my_nickname_display">내 닉네임: %1$s</string>
     <string name="gender_male">남성</string>
     <string name="gender_female">여성</string>
     <string name="gender_unknown">알 수 없음</string>
