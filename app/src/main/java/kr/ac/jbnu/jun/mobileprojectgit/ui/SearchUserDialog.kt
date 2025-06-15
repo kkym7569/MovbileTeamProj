@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -69,16 +70,18 @@ class SearchUserDialog(private val onSendRequest: (User, Boolean) -> Unit) : Dia
         }
 // 어댑터에서 친구 요청 시
         adapter = SearchUserAdapter(resultList) { user: User ->
-            if (!isMyNicknameLoaded || myNickname.isNullOrBlank()) {
-
-                onSendRequest(user, false)
-                return@SearchUserAdapter
-            }
-            sendFriendRequest(user) { isSuccess ->
+            sendFriendRequest(user) { isSuccess, msg ->
+                val safeContext = this.context
+                if (safeContext != null) {
+                    Toast.makeText(safeContext, msg, Toast.LENGTH_SHORT).show()
+                }
+                // 외부 콜백은 딱 성공 여부만 전달!
                 onSendRequest(user, isSuccess)
+                // dismiss()도 이 콜백 안에서, 성공시에만 처리하는 게 자연스러움!
+                if (isSuccess) dismiss()
             }
-            dismiss()
         }
+            // 수정된 sendFriendRequest를 사용
 
         rvUsers.layoutManager = LinearLayoutManager(context)
         rvUsers.adapter = adapter
@@ -119,21 +122,34 @@ class SearchUserDialog(private val onSendRequest: (User, Boolean) -> Unit) : Dia
             }
     }
     // 친구 요청 보내기 함수 추가
-    private fun sendFriendRequest(targetUser: User, callback: (Boolean) -> Unit) {
+    private fun sendFriendRequest(targetUser: User, callback: (Boolean, String) -> Unit) {
+        Log.d("친구요청", "실행됨: targetUser=${targetUser.uid}, nickname=$myNickname")
         val myUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (myNickname.isNullOrBlank()) {
-            callback(false)
+        if (myUid == null || myNickname.isNullOrBlank()) {
+            callback(false, "요청 실패(닉네임 문제 등)!")
             return
         }
+
+        val idPair = listOf(myUid, targetUser.uid).sorted()
+        val docId = "${idPair[0]}_${idPair[1]}"
+
         val request = hashMapOf(
             "sender" to myUid,
             "receiver" to targetUser.uid,
             "nickname" to myNickname
         )
-        FirebaseFirestore.getInstance()
-            .collection("requests")
-            .add(request)
-            .addOnSuccessListener { callback(true) }
-            .addOnFailureListener { callback(false) }
+
+        val requestRef = FirebaseFirestore.getInstance().collection("requests").document(docId)
+        requestRef.get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    callback(false, "이미 보낸 요청입니다.")
+                } else {
+                    requestRef.set(request)
+                        .addOnSuccessListener { callback(true, "친구 요청을 보냈습니다.") }
+                        .addOnFailureListener { callback(false, "요청 실패(네트워크 오류 등)!") }
+                }
+            }
+            .addOnFailureListener { callback(false, "요청 실패(네트워크 오류 등)!") }
     }
 }
