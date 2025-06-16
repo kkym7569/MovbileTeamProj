@@ -12,6 +12,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chartHypnogram"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="20dp"/>
+
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:id="@+id/chartStageRatio"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="16dp" />
 
         <LinearLayout
             android:id="@+id/layoutTop"
@@ -19,24 +30,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/stats_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="개인 수면기록 통계"
-                android:textSize="25sp"
-                android:textColor="#FFFFFF"
-                android:gravity="center_horizontal" />
 
-            <TextView
-                android:id="@+id/stats_text2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="여기에 개인수면 통계 넣으면 됩니다"
-                android:textSize="25sp"
-                android:textColor="#FFFFFF"
-                android:gravity="center_horizontal" />
-            <!-- 필요하면 여기에 다른 상단 UI 추가 -->
+
 
         </LinearLayout>
 
