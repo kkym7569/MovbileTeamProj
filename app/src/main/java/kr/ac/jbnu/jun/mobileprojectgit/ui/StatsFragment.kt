@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.LineData
@@ -65,8 +64,7 @@ class StatsFragment : Fragment() {
     private var populationAvgDuration: Double = 0.0
     private lateinit var tvStageRatioDetail: TextView
     private lateinit var tvSelectedDate: TextView
-    private lateinit var btnDatePrev: ImageButton
-    private lateinit var btnDateNext: ImageButton
+
 
     private var selectedDate: LocalDate = LocalDate.now()
 
@@ -132,16 +130,7 @@ class StatsFragment : Fragment() {
 
         loadRecentReportAndBindCharts()
         // 기타 기존 코드...
-        btnDatePrev.setOnClickListener {
-            selectedDate = selectedDate.minusDays(1)
-            updateDateText()
-            loadReportByDate(selectedDate)
-        }
-        btnDateNext.setOnClickListener {
-            selectedDate = selectedDate.plusDays(1)
-            updateDateText()
-            loadReportByDate(selectedDate)
-        }
+
 
 
     }
