@@ -19,7 +19,7 @@
             android:id="@+id/tv_recommend_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="추천 기상 시간 🌙"
+            android:text="추천 기상 시간🌙"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:layout_marginBottom="8dp" />
@@ -39,7 +39,7 @@
             android:id="@+id/tv_manual_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="기상 시간 설정 🛏️"
+            android:text="기상 시간 설정🛏️"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:layout_marginBottom="8dp" />

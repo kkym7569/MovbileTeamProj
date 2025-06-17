@@ -25,7 +25,7 @@
                 android:textColor="#C9D1F2"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 🛏️ 수면 단계란? -->
+            <!-- 🛏️수면 단계란? -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

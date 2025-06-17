@@ -43,6 +43,7 @@ class AlarmFragment : Fragment() {
     private lateinit var btnBegin: Button
     private lateinit var btnEnd: Button
     private lateinit var btnShareList: Button
+
 */
     private var createdUserId: String? = null
     private var createdAsleepConfig: AsleepConfig? = null
