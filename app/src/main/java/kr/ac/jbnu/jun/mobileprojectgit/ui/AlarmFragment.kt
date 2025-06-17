@@ -1,6 +1,8 @@
 package kr.ac.jbnu.jun.mobileprojectgit.ui
 
 import ai.asleep.asleepsdk.Asleep
+import android.os.Handler
+import android.os.Looper
 import ai.asleep.asleepsdk.data.AsleepConfig
 import ai.asleep.asleepsdk.data.Report
 import ai.asleep.asleepsdk.tracking.Reports
@@ -20,11 +22,14 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kr.ac.jbnu.jun.mobileprojectgit.R
 import kr.ac.jbnu.jun.mobileprojectgit.alarm.AlarmReceiver
+import kr.ac.jbnu.jun.mobileprojectgit.model.SleepEfficiencyStat
 import kr.ac.jbnu.jun.mobileprojectgit.util.SleepCycleUtil
 import java.time.Duration
 import java.time.Instant
@@ -253,69 +258,57 @@ class AlarmFragment : Fragment() {
                     showToast("report 실패: $detail")
                 }
 
-                override fun onSuccess(report: Report?) {
-                    showToast("report 성공")
-                    Log.d("SleepDebug", "SDK report: $report")
-                    Log.d("SleepDebug", "stat: ${report?.stat}")
-                    Log.d("SleepDebug", "sleepEfficiency: ${report?.stat?.sleepEfficiency}")
-                    saveSleepRecordToFirestore(report)
+                override fun onSuccess(sdkReport: Report?) {
+                    Log.d("SDKDebug", "fetchReport() onSuccess 호출, sdkReport: $sdkReport")
+                    if (sdkReport == null || sdkReport.stat == null) {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            fetchReport(sessionId) // 10초 후 다시 시도
+                        }, 10000)
+                        showToast("분석 중입니다. 잠시만 기다려주세요.")
+                        return
+                    }
+
+                    val sleepEfficiencyStat = SleepEfficiencyStat(
+                        sleepEfficiency = sdkReport.stat!!.sleepEfficiency ?: 0f
+                    )
+                    Log.d("SDKDebug", "sleepEfficiencyStat: $sleepEfficiencyStat")
+
+                    saveSleepRecordToFirestore(sdkReport, sleepEfficiencyStat.sleepEfficiency)
                 }
             }
         )
     }
 
 //파이어 스토어에 저장하는 함수
-    private fun saveSleepRecordToFirestore(report: Report?) {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        val uid = user.uid
-        val db = FirebaseFirestore.getInstance()
+private fun saveSleepRecordToFirestore(report: Report?, efficiency: Float?) {
+    val user = FirebaseAuth.getInstance().currentUser ?: return
+    val uid = user.uid
+    val db = FirebaseFirestore.getInstance()
 
-        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
-            val nickname = doc.getString("nickname") ?: "익명"
+    db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+        val nickname = doc.getString("nickname") ?: "익명"
+        val startStr = report?.session?.startTime
+        val endStr = report?.session?.endTime
+        val sleepStages = report?.session?.sleepStages
 
-            val startStr: String? = report?.session?.startTime
-            val endStr:   String? = report?.session?.endTime
-            val efficiency: Float? = report?.stat?.sleepEfficiency
-            val sleepStages: List<Int>? = report?.session?.sleepStages
+        val sleepData = hashMapOf(
+            "nickname" to nickname,
+            "startTime" to (startStr ?: ""),
+            "endTime" to (endStr ?: ""),
+            "efficiency" to efficiency, // 이제 null이 아님!
+            "sleepStages" to sleepStages
+        )
 
-            val startInstant: Instant? = startStr?.let {
-                try {
-                    Instant.parse(it)
-                } catch (e: DateTimeParseException) {
-                    null
-                }
-            }
-            val endInstant: Instant? = endStr?.let {
-                try {
-                    Instant.parse(it)
-                } catch (e: DateTimeParseException) {
-                    null
-                }
-            }
+        db.collection("users")
+            .document(uid)
+            .collection("sleeps")
+            .add(sleepData)
+            .addOnSuccessListener { showToast("기록 저장됨") }
+            .addOnFailureListener { showToast("기록 실패") }
 
-            val durationHours: Double = if (startInstant != null && endInstant != null) {
-                val millis = Duration.between(startInstant, endInstant).toMillis()
-                millis.toDouble() / 1000.0 / 60.0 / 60.0
-            } else {
-                0.0
-            }
+        Log.d("SleepDebug", "Saved sleepEfficiency: $efficiency")
+    }
 
-            val sleepData = hashMapOf(
-                "nickname" to nickname,
-                "startTime" to (startStr ?: ""),
-                "endTime" to (endStr ?: ""),
-                "efficiency" to efficiency,
-                "sleepStages" to sleepStages
-            )
-
-            db.collection("users")
-                .document(uid)
-                .collection("sleeps")
-                .add(sleepData)
-                .addOnSuccessListener { showToast("기록 저장됨") }
-                .addOnFailureListener { showToast("기록 실패") }
-            Log.d("SleepDebug", "report.stat.sleepEfficiency: ${report?.stat?.sleepEfficiency}")
-        }
             .addOnFailureListener {
                 showToast("사용자 정보 읽기 실패")
             }
