@@ -148,7 +148,7 @@ class StatsFragment : Fragment() {
                 val avg = if (count > 0) sum / count else 0.0
                 populationAvgDuration = avg
 
-                // 3) “20대 여성의”처럼 동적 헤더 만들기
+                // 3) 동적 헤더 만들기
                 val decadeLabel = "${lowerAge / 10}0대"
                 val genderLabel = if (gender == 0L) "남성" else "여성"
                 val header = "$decadeLabel ${genderLabel}의\n"
@@ -191,10 +191,17 @@ class StatsFragment : Fragment() {
                     // 2) 안내 텍스트
                     tvComparisonRemark.text = "최근 수면 기록이 없어요"
                 } else {
-                    // 기존 로직: 실제 duration 값을 받아와 그리기
+                    val doc = docs.documents.first()
+                    val startTimeStr = doc.getString("startTime") ?: "--"
                     val duration = docs.documents.first().getDouble("duration") ?: 0.0
+
+                    val dateOnly = if (startTimeStr.length >= 10) startTimeStr.substring(0, 10) else "--"
+
                     drawComparisonChart(duration, populationAvgDuration)
 
+
+                    tvRecentDate.text = "나의 최근 수면 일자: $dateOnly"
+                    tvRecentDuration.text = "나의 최근 수면 시간: %.2f시간".format(duration)
                     // 기존 Remark 세팅
                     val diff = duration - populationAvgDuration
                     tvComparisonRemark.text = when {
