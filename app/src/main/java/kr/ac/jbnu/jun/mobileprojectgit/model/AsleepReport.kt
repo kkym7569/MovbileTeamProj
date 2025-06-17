@@ -5,7 +5,9 @@ data class AsleepReport(
     val session: Session = Session(),
     val stageList: List<SleepStage> = emptyList()
 )
-
+data class SleepEfficiencyStat(
+    val sleepEfficiency: Float
+)
 data class Stat(
     val sleepEfficiency: Float = 0f,
     val duration: Float = 0f,

@@ -31,6 +31,9 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Calendar
+import android.os.Handler
+import android.os.Looper
+import kr.ac.jbnu.jun.mobileprojectgit.model.SleepEfficiencyStat
 
 class AlarmFragment : Fragment() {
 
@@ -253,12 +256,29 @@ class AlarmFragment : Fragment() {
                     showToast("report 실패: $detail")
                 }
 
-                override fun onSuccess(report: Report?) {
-                    showToast("report 성공")
-                    Log.d("SleepDebug", "SDK report: $report")
-                    Log.d("SleepDebug", "stat: ${report?.stat}")
-                    Log.d("SleepDebug", "sleepEfficiency: ${report?.stat?.sleepEfficiency}")
-                    saveSleepRecordToFirestore(report)
+                override fun onSuccess(sdkReport: Report?) {
+                    Log.d("SDKDebug", "fetchReport() onSuccess 호출, sdkReport: $sdkReport")
+                    if (sdkReport == null) {
+                        Log.d("SDKDebug", "sdkReport is null")
+                        showToast("SDK 데이터가 없습니다. (Report가 null)")
+                        return
+                    }
+                    if (sdkReport.stat == null) {
+                        if (sdkReport == null || sdkReport.stat == null) {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                fetchReport(sessionId) // 10초 후 다시 시도
+                            }, 10000)
+                            showToast("분석 중입니다. 잠시만 기다려주세요.")
+                            return
+                        }
+                    }
+
+                    val sleepEfficiencyStat = SleepEfficiencyStat(
+                        sleepEfficiency = sdkReport.stat!!.sleepEfficiency ?: 0f
+                    )
+                    Log.d("SDKDebug", "sleepEfficiencyStat: $sleepEfficiencyStat")
+
+                    saveSleepRecordToFirestore(sdkReport)
                 }
             }
         )
