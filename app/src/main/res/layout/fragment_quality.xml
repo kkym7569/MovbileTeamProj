@@ -1,16 +1,200 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0A0F2C"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/quality_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="분석 탭입니다"
-        android:textSize="20sp"
-        android:textColor="#FFFFFF"
-        android:layout_gravity="center" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌙 수면 기초 지식"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#C9D1F2"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 🛏️수면 단계란? -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#101218">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🛏️ 수면 단계란?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#C9D1F2" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"
+                        android:textColor="#AAB0D0"
+                        android:text="수면은 단순히 깨어있음의 반대가 아니라 다양한 생리 단계를 포함한 복잡한 과정입니다. 평균 90분 간격으로 REM과 비REM 수면이 반복되며, 비REM 수면은 일반잠과 깊은잠으로 나뉩니다." />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ⚖️ Non-REM vs REM 수면 비교 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#101218">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚖️ Non-REM vs REM 수면"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#C9D1F2" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"
+                        android:textColor="#AAB0D0"
+                        android:text="Non-REM 수면은 심장 박동이 느려지고 체온이 낮아지며, 깊은 잠을 유도합니다. 반면 REM 수면은 안구가 빠르게 움직이고 뇌가 활발히 활동하며 대부분의 꿈이 발생하는 단계입니다." />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 🔄 수면 주기란? -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#101218">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔄 수면 주기란?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#C9D1F2" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"
+                        android:textColor="#AAB0D0"
+                        android:text="하룻밤 동안 사람은 약 4~5회의 수면 주기를 거치며, 하나의 주기는 일반 수면, 깊은 수면, 그리고 REM 수면으로 구성됩니다. 깊은 수면은 초반에 많고, REM 수면은 후반에 많아지는 경향이 있습니다." />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ⚙️ 수면의 기능 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#101218">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚙️ 수면의 기능"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#C9D1F2" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"
+                        android:textColor="#AAB0D0"
+                        android:text="수면은 신체 회복, 면역 강화, 성장 호르몬 분비와 같은 복원 기능뿐 아니라, 뇌 청소 및 학습 능력 유지에도 중요한 역할을 합니다. 수면 부족은 집중력 저하, 피로, 면역 약화를 유발합니다." />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 🧼 수면 위생 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#101218">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🧼 수면 위생 (Sleep Hygiene)"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#C9D1F2" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"
+                        android:textColor="#AAB0D0"
+                        android:text="매일 같은 시간에 잠들고 일어나는 습관, 취침 전 자극 피하기, 침실 환경 정리, 카페인과 전자기기 줄이기 등의 수면 위생은 수면의 질을 높이고 일상 집중력을 향상시키는 데 필수적입니다." />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
 </FrameLayout>
