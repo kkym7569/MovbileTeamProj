@@ -272,6 +272,8 @@ class AlarmFragment : Fragment() {
 
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
             val nickname = doc.getString("nickname") ?: "익명"
+            val age = doc.getLong("age")?.toInt() ?: 0
+            val gender = doc.getLong("gender") ?: -1L
 
             val startStr: String? = report?.session?.startTime
             val endStr:   String? = report?.session?.endTime
@@ -314,10 +316,31 @@ class AlarmFragment : Fragment() {
                 .add(sleepData)
                 .addOnSuccessListener { showToast("기록 저장됨") }
                 .addOnFailureListener { showToast("기록 실패") }
+            savePublicSleepData(age, gender, durationHours)
             Log.d("SleepDebug", "report.stat.sleepEfficiency: ${report?.stat?.sleepEfficiency}")
         }
             .addOnFailureListener {
                 showToast("사용자 정보 읽기 실패")
+            }
+
+    }
+
+    private fun savePublicSleepData(age: Int, gender: Long, duration: Double) {
+        val db = FirebaseFirestore.getInstance()
+
+        val publicData = hashMapOf(
+            "age" to age,
+            "gender" to gender,
+            "duration" to duration
+        )
+
+        db.collection("public_sleep_data")
+            .add(publicData)
+            .addOnSuccessListener {
+                showToast("공개 수면 데이터 저장 완료")
+            }
+            .addOnFailureListener { e ->
+                showToast("공개 데이터 저장 실패: ${e.message}")
             }
     }
 
