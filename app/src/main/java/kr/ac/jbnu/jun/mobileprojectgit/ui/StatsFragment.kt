@@ -141,7 +141,7 @@ class StatsFragment : Fragment() {
     }
     private fun loadReportByDate(date: LocalDate) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
-        val startOfDay = date.atStartOfDay().toString() + "+09:00" // "2025-06-17T00:00:00+09:00"
+        val startOfDay = date.atStartOfDay().toString() + "+09:00"
         val endOfDay = date.atTime(23, 59, 59).toString() + "+09:00"
         FirebaseFirestore.getInstance()
             .collection("users")
@@ -149,35 +149,40 @@ class StatsFragment : Fragment() {
             .collection("sleeps")
             .whereGreaterThanOrEqualTo("startTime", startOfDay)
             .whereLessThanOrEqualTo("startTime", endOfDay)
-            .orderBy("startTime", Query.Direction.ASCENDING)
-            .limit(1)
             .get()
             .addOnSuccessListener { docs ->
-                if (!docs.isEmpty) {
-                    val doc = docs.documents.first()
-                    Log.d("StatsFragment", "불러온 sleep 데이터: ${doc.data}")
-                    val sleepStages = doc.get("sleepStages") as? List<Long> ?: emptyList()
+                // 가장 오래 잔 데이터 1개 고르기
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+                val longestDoc = docs.documents
+                    .filter {
+                        it.contains("startTime") && it.contains("endTime")
+                    }
+                    .maxByOrNull { doc ->
+                        val start = ZonedDateTime.parse(doc.getString("startTime"), formatter)
+                        val end = ZonedDateTime.parse(doc.getString("endTime"), formatter)
+                        ChronoUnit.MINUTES.between(start, end)
+                    }
+
+                if (longestDoc != null) {
+                    Log.d("StatsFragment", "가장 긴 sleep 데이터: ${longestDoc.data}")
+                    val sleepStages = longestDoc.get("sleepStages") as? List<Long> ?: emptyList()
                     val stageNames = listOf("Wake", "REM", "Light", "Deep")
                     val stageList = sleepStages.map { idx ->
                         SleepStage(stage = stageNames.getOrElse(idx.toInt()) { "Wake" })
                     }
-                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
-                    val startTimeStr = docs.documents.first().getString("startTime") ?: ""
-                    val endTimeStr = docs.documents.first().getString("endTime") ?: ""
+                    val startTimeStr = longestDoc.getString("startTime") ?: ""
+                    val endTimeStr = longestDoc.getString("endTime") ?: ""
                     val startTime = ZonedDateTime.parse(startTimeStr, formatter)
                     val endTime = ZonedDateTime.parse(endTimeStr, formatter)
 
-
                     val totalMinutes = ChronoUnit.MINUTES.between(startTime, endTime)
                     val rawInterval = if (sleepStages.size > 1) totalMinutes / (sleepStages.size - 1) else 1
-                    val intervalMinutes = if (rawInterval < 1) 1 else rawInterval // 최소 1분
+                    val intervalMinutes = if (rawInterval < 1) 1 else rawInterval
 
                     val timeLabels = sleepStages.indices.map { i ->
                         startTime.plusMinutes(i * intervalMinutes).toLocalTime().toString().substring(0, 5)
                     }
                     bindHypnogram(stageList, timeLabels)
-
-                    // 2. 비율 계산 및 바차트+텍스트
                     showStageRatioAndChart(sleepStages)
                 } else {
                     chartHypnogram.clear()
