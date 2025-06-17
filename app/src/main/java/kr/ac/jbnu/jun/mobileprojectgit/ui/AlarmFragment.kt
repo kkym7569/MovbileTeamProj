@@ -254,6 +254,9 @@ class AlarmFragment : Fragment() {
 
                 override fun onSuccess(report: Report?) {
                     showToast("report 성공")
+                    Log.d("SleepDebug", "SDK report: $report")
+                    Log.d("SleepDebug", "stat: ${report?.stat}")
+                    Log.d("SleepDebug", "sleepEfficiency: ${report?.stat?.sleepEfficiency}")
                     saveSleepRecordToFirestore(report)
                 }
             }
@@ -272,6 +275,7 @@ class AlarmFragment : Fragment() {
             val startStr: String? = report?.session?.startTime
             val endStr:   String? = report?.session?.endTime
             val efficiency: Float? = report?.stat?.sleepEfficiency
+            val sleepStages: List<Int>? = report?.session?.sleepStages
 
             val startInstant: Instant? = startStr?.let {
                 try {
@@ -295,12 +299,12 @@ class AlarmFragment : Fragment() {
                 0.0
             }
 
-
             val sleepData = hashMapOf(
                 "nickname" to nickname,
                 "startTime" to (startStr ?: ""),
                 "endTime" to (endStr ?: ""),
-                "efficiency" to efficiency
+                "efficiency" to efficiency,
+                "sleepStages" to sleepStages
             )
 
             db.collection("users")
@@ -309,6 +313,7 @@ class AlarmFragment : Fragment() {
                 .add(sleepData)
                 .addOnSuccessListener { showToast("기록 저장됨") }
                 .addOnFailureListener { showToast("기록 실패") }
+            Log.d("SleepDebug", "report.stat.sleepEfficiency: ${report?.stat?.sleepEfficiency}")
         }
             .addOnFailureListener {
                 showToast("사용자 정보 읽기 실패")

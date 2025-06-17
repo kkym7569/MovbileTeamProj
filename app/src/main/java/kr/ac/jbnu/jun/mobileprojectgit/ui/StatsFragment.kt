@@ -1,12 +1,17 @@
 package kr.ac.jbnu.jun.mobileprojectgit.ui
 
+import android.app.DatePickerDialog
 import android.graphics.Color
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import com.github.mikephil.charting.charts.HorizontalBarChart
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.LineData
@@ -32,6 +37,8 @@ import kr.ac.jbnu.jun.mobileprojectgit.adapter.ComparisonStatAdapter
 import kr.ac.jbnu.jun.mobileprojectgit.model.AsleepReport
 import kr.ac.jbnu.jun.mobileprojectgit.model.SleepRecord
 import kr.ac.jbnu.jun.mobileprojectgit.model.SleepStage
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.collections.mapIndexed
 
 class StatsFragment : Fragment() {
@@ -56,6 +63,13 @@ class StatsFragment : Fragment() {
 
     private val recordList = mutableListOf<SleepRecord>()
     private var populationAvgDuration: Double = 0.0
+    private lateinit var tvStageRatioDetail: TextView
+    private lateinit var tvSelectedDate: TextView
+    private lateinit var btnDatePrev: ImageButton
+    private lateinit var btnDateNext: ImageButton
+
+    private var selectedDate: LocalDate = LocalDate.now()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,7 +94,7 @@ class StatsFragment : Fragment() {
         rvComparison.layoutManager = LinearLayoutManager(requireContext())
 
         tvComparisonRemark = view.findViewById(R.id.tvComparisonRemark)
-
+        tvStageRatioDetail = view.findViewById(R.id.tvStageRatioDetail)
         rvComparison.adapter = compAdapter
 
         barChart = view.findViewById(R.id.barChart)
@@ -93,12 +107,99 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val app = FirebaseApp.getInstance()
+        tvSelectedDate = view.findViewById(R.id.tvSelectedDate)
+
+        tvSelectedDate.setOnClickListener {
+            Log.d("StatsFragment", "날짜 텍스트 클릭됨!") // 로그 반드시 확인
+            val now = selectedDate
+            DatePickerDialog(
+                requireContext(),
+                { _, year, month, dayOfMonth ->
+                    selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                    updateDateText()
+                    loadReportByDate(selectedDate)
+                },
+                now.year, now.monthValue - 1, now.dayOfMonth
+            ).show()
+        }
+
         Log.d("FirebaseApp", "Project ID: ${app.options.projectId}")
         chartHypnogram = view.findViewById(R.id.chartHypnogram)
         chartStageRatio = view.findViewById(R.id.chartStageRatio)
+
+        updateDateText()
+        loadReportByDate(selectedDate)
+
         loadRecentReportAndBindCharts()
         // 기타 기존 코드...
+        btnDatePrev.setOnClickListener {
+            selectedDate = selectedDate.minusDays(1)
+            updateDateText()
+            loadReportByDate(selectedDate)
+        }
+        btnDateNext.setOnClickListener {
+            selectedDate = selectedDate.plusDays(1)
+            updateDateText()
+            loadReportByDate(selectedDate)
+        }
+
+
     }
+
+
+    private fun updateDateText() {
+        tvSelectedDate.text = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    }
+    private fun loadReportByDate(date: LocalDate) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val startOfDay = date.atStartOfDay().toString() + "+09:00" // "2025-06-17T00:00:00+09:00"
+        val endOfDay = date.atTime(23, 59, 59).toString() + "+09:00"
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(user.uid)
+            .collection("sleeps")
+            .whereGreaterThanOrEqualTo("startTime", startOfDay)
+            .whereLessThanOrEqualTo("startTime", endOfDay)
+            .orderBy("startTime", Query.Direction.ASCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { docs ->
+                if (!docs.isEmpty) {
+                    val doc = docs.documents.first()
+                    Log.d("StatsFragment", "불러온 sleep 데이터: ${doc.data}")
+                    val sleepStages = doc.get("sleepStages") as? List<Long> ?: emptyList()
+                    val stageNames = listOf("Wake", "REM", "Light", "Deep")
+                    val stageList = sleepStages.map { idx ->
+                        SleepStage(stage = stageNames.getOrElse(idx.toInt()) { "Wake" })
+                    }
+                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+                    val startTimeStr = docs.documents.first().getString("startTime") ?: ""
+                    val endTimeStr = docs.documents.first().getString("endTime") ?: ""
+                    val startTime = ZonedDateTime.parse(startTimeStr, formatter)
+                    val endTime = ZonedDateTime.parse(endTimeStr, formatter)
+
+
+                    val totalMinutes = ChronoUnit.MINUTES.between(startTime, endTime)
+                    val rawInterval = if (sleepStages.size > 1) totalMinutes / (sleepStages.size - 1) else 1
+                    val intervalMinutes = if (rawInterval < 1) 1 else rawInterval // 최소 1분
+
+                    val timeLabels = sleepStages.indices.map { i ->
+                        startTime.plusMinutes(i * intervalMinutes).toLocalTime().toString().substring(0, 5)
+                    }
+                    bindHypnogram(stageList, timeLabels)
+
+                    // 2. 비율 계산 및 바차트+텍스트
+                    showStageRatioAndChart(sleepStages)
+                } else {
+                    chartHypnogram.clear()
+                    chartStageRatio.clear()
+                    tvStageRatioDetail.text = ""
+                }
+            }
+    }
+
+
+
     //현재 내 나이 / 내 성별 출력하는 함수
     private fun loadMyInfo() {
         val user = FirebaseAuth.getInstance().currentUser
@@ -289,10 +390,11 @@ class StatsFragment : Fragment() {
             IndexAxisValueFormatter(listOf("내 최근 수면", "평균 수면"))
         barChart.invalidate()
     }
-    private fun bindHypnogram(stageList: List<SleepStage>) {
+    private fun bindHypnogram(stageList: List<SleepStage>, timeLabels: List<String>) {
         val entries = stageList.mapIndexed { i, s ->
             Entry(i.toFloat(), stageToY(s.stage))
         }
+
         val ds = LineDataSet(entries, "수면 단계 변화").apply {
             setDrawCircles(false)
             setDrawValues(false)
@@ -306,8 +408,17 @@ class StatsFragment : Fragment() {
         chartHypnogram.axisLeft.labelCount = 4
         chartHypnogram.axisLeft.axisMinimum = 0f
         chartHypnogram.axisLeft.axisMaximum = 3f
+
+        chartHypnogram.axisLeft.textColor = Color.WHITE
         chartHypnogram.axisRight.isEnabled = false
-        chartHypnogram.xAxis.isEnabled = false
+        chartHypnogram.xAxis.isEnabled = true
+        chartHypnogram.xAxis.position = XAxis.XAxisPosition.BOTTOM
+        chartHypnogram.xAxis.valueFormatter = IndexAxisValueFormatter(timeLabels)
+        chartHypnogram.xAxis.granularity = 1f
+        chartHypnogram.xAxis.setLabelCount(timeLabels.size / 6, true)
+        chartHypnogram.xAxis.textColor = Color.WHITE
+        chartHypnogram.xAxis.labelRotationAngle = -45f // 기울이면 더 잘보임
+
         chartHypnogram.description.isEnabled = false
         chartHypnogram.legend.isEnabled = false
         chartHypnogram.data = LineData(ds)
@@ -326,6 +437,56 @@ class StatsFragment : Fragment() {
             r.stat.lightSleep / total * 100f,
             r.stat.deepSleep / total * 100f
         )
+
+        val ds = BarDataSet(listOf(BarEntry(0f, arr)), "단계별 비율").apply {
+            setColors(
+                Color.parseColor("#FFA726"),
+                Color.parseColor("#64B5F6"),
+                Color.parseColor("#9575CD"),
+                Color.parseColor("#00897B")
+            )
+            stackLabels = arrayOf("Wake", "REM", "Light", "Deep")
+            setDrawValues(true)
+            valueTextSize = 16f
+
+            setValueTextColor(Color.YELLOW)
+        }
+        val barData = BarData(ds)
+        chartStageRatio.data = barData
+        chartStageRatio.apply {
+            data = BarData(ds).apply { barWidth = 0.95f }
+            axisLeft.isEnabled = false
+            axisRight.isEnabled = false
+            xAxis.isEnabled = false
+            description.isEnabled = false
+            legend.isEnabled = false
+            invalidate()
+        }
+
+        chartStageRatio.invalidate()
+    }
+
+    private fun showStageRatioAndChart(sleepStages: List<Long>) {
+        if (sleepStages.isEmpty()) {
+            chartStageRatio.clear()
+            tvStageRatioDetail.text = ""
+            return
+        }
+        val total = sleepStages.size.toFloat()
+        val counts = IntArray(4) // Wake, REM, Light, Deep
+        for (idx in sleepStages) {
+            if (idx in 0..3) counts[idx.toInt()]++
+        }
+        val percents = counts.map { it / total * 100f }
+        val labels = listOf("Wake", "REM", "Light", "Deep")
+        val ratioString = percents.mapIndexed { i, v -> "${labels[i]}: %.1f%%".format(v) }
+            .joinToString("  ")
+        tvStageRatioDetail.text = ratioString
+        tvStageRatioDetail.setSingleLine(true)
+        tvStageRatioDetail.ellipsize = TextUtils.TruncateAt.END
+
+        // 스택형 바차트
+        val arr = percents.toFloatArray()
         val ds = BarDataSet(listOf(BarEntry(0f, arr)), "단계별 비율").apply {
             setColors(
                 Color.parseColor("#FFA726"), // Wake
@@ -335,10 +496,11 @@ class StatsFragment : Fragment() {
             )
             stackLabels = arrayOf("Wake", "REM", "Light", "Deep")
             setDrawValues(true)
-            valueTextSize = 12f
+            valueTextSize = 18f
+            setValueTextColor(Color.YELLOW)
         }
         chartStageRatio.apply {
-            data = BarData(ds).apply { barWidth = 0.7f }
+            data = BarData(ds).apply { barWidth = 0.98f }
             axisLeft.isEnabled = false
             axisRight.isEnabled = false
             xAxis.isEnabled = false
@@ -362,8 +524,15 @@ class StatsFragment : Fragment() {
                     val report = docs.documents.first().toObject(AsleepReport::class.java)
                     Log.d("StatsFragment", "파싱된 report: $report")
                     report?.let {
-                        // 여기에 차트/통계 바인딩 함수 호출
-                        bindHypnogram(it.stageList)
+                        // 1. 시작 시간 파싱
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+                        val startTimeStr = docs.documents.first().getString("startTime")
+                        val startTime = ZonedDateTime.parse(startTimeStr, formatter)
+                        // 2. 시간 라벨 생성 (예: 10분 단위 데이터면 10L)
+                        val timeLabels = it.stageList.indices.map { i ->
+                            startTime.plusMinutes(i * 10L).toLocalTime().toString().substring(0, 5)
+                        }
+                        bindHypnogram(it.stageList, timeLabels)
                         bindStageRatio(it)
                         // 추가 바인딩 필요하면 여기에!
                     }
