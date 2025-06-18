@@ -306,8 +306,10 @@ class AlarmFragment : Fragment() {
                 "nickname" to nickname,
                 "startTime" to (startStr ?: ""),
                 "endTime" to (endStr ?: ""),
+                "duration" to durationHours,
                 "efficiency" to efficiency,
                 "sleepStages" to sleepStages
+
             )
 
             db.collection("users")
