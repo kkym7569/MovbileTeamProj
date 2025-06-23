@@ -177,7 +177,7 @@ class FriendsFragment : Fragment() {
                                 if (rawStart != null && rawEnd != null) {
                                     val start = rawStart.replace("T", " ").substringBefore("+").substring(0, 16)
                                     val end = rawEnd.replace("T", " ").substringBefore("+").substring(0, 16)
-                                    val eff = if (effValue != null && effValue != 0.0) "%.1f%%".format(effValue) else "0%"
+                                    val eff = if (effValue != null && effValue != 0.0) "%.1f%%".format(effValue * 100) else "0%"
 
                                     val friend = friendSleepList[index]
                                     friend.sleepStart = start

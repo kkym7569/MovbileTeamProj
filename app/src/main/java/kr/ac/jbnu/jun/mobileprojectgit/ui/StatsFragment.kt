@@ -64,7 +64,7 @@ class StatsFragment : Fragment() {
     private var populationAvgDuration: Double = 0.0
     private lateinit var tvStageRatioDetail: TextView
     private lateinit var tvSelectedDate: TextView
-
+    private lateinit var tvSleepEfficiency: TextView
 
     private var selectedDate: LocalDate = LocalDate.now()
 
@@ -94,7 +94,7 @@ class StatsFragment : Fragment() {
         tvComparisonRemark = view.findViewById(R.id.tvComparisonRemark)
         tvStageRatioDetail = view.findViewById(R.id.tvStageRatioDetail)
         rvComparison.adapter = compAdapter
-
+        tvSleepEfficiency = view.findViewById(R.id.tvSleepEfficiency)
         barChart = view.findViewById(R.id.barChart)
         setupChart()
 
@@ -175,6 +175,13 @@ class StatsFragment : Fragment() {
                     val startTime = ZonedDateTime.parse(startTimeStr, formatter)
                     val endTime = ZonedDateTime.parse(endTimeStr, formatter)
 
+                    val sleepEfficiency = longestDoc.getDouble("efficiency")
+                    if (sleepEfficiency != null) {
+                        tvSleepEfficiency.text = "수면 효율: %d%%".format((sleepEfficiency * 100).toInt())
+                    } else {
+                        tvSleepEfficiency.text = "수면 효율 데이터 없음"
+                    }
+
                     val totalMinutes = ChronoUnit.MINUTES.between(startTime, endTime)
                     val rawInterval = if (sleepStages.size > 1) totalMinutes / (sleepStages.size - 1) else 1
                     val intervalMinutes = if (rawInterval < 1) 1 else rawInterval
@@ -188,6 +195,7 @@ class StatsFragment : Fragment() {
                     chartHypnogram.clear()
                     chartStageRatio.clear()
                     tvStageRatioDetail.text = ""
+                    tvSleepEfficiency.text = "수면 효율 데이터 없음"
                 }
             }
     }
