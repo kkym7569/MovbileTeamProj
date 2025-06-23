@@ -17,7 +17,7 @@ import androidx.core.app.NotificationCompat
 import kr.ac.jbnu.jun.mobileprojectgit.R
 
 class AlarmRingActivity : AppCompatActivity() {
-    private lateinit var player: MediaPlayer
+    private var player: MediaPlayer?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,31 +63,27 @@ class AlarmRingActivity : AppCompatActivity() {
         (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(1000)
 
         player = MediaPlayer.create(this, R.raw.alarm_sound)
-        player.isLooping = true
-        player.start()
+        player?.isLooping = true
+        player?.start()
 
         findViewById<Button>(R.id.btn_stop_alarm).setOnClickListener {
-            try {
-                if (player.isPlaying) {
-                    player.stop()
-                    player.release()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
+            stopAlarmSound()
             finish()
         }
     }
 
     private fun stopAlarmSound() {
         try {
-            if (::player.isInitialized && player.isPlaying) {
-                player.stop()
-                player.release()
+            player?.let {
+                if (it.isPlaying) {
+                    it.stop()
+                }
+                it.release()
+                player = null
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            player = null
         }
     }
 
@@ -99,13 +95,7 @@ class AlarmRingActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            if (::player.isInitialized && player.isPlaying) {
-                player.stop()
-                player.release()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        stopAlarmSound()
         }
     }
-}
+
